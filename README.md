@@ -77,9 +77,10 @@ require方法的作用是等依赖列表都加载完毕，执行用户回调。�
  * 创建script节点，绑定onerror、onload、onreadychange等回调，插入dom树
  * 将模块的依赖列表
  
- 语言模块
+ 下面看下语言模块的扩展与修复：
+ 
+ 字符串的扩展与修复
  -
- 语言模块比如字符串的扩展与修复。
  contains方法，用来判定一个字符串是否包含另一个字符串，用正则性能太差
  ```javascript
     function contains(target, it){
@@ -125,5 +126,103 @@ repeat方法，将一个字符串重复自身n次
         }
         //右移一位，相当于/2
         n = n >> 1;
+    }
+```
+byteLen方法，取得字符串所有字节的长度，如果将一个英文字符插入数据库char/varchar/text类型的字段占用一个字节，中文字符需要占用两个字节。
+```javascript
+    function byteLen(target){
+        var byteLength = target.length,
+            i = 0;
+        for(; i < target.length; i++){
+            if(target.charCodeAt(i) > 255){
+                byteLength++;
+            }
+        }
+        return byteLength;
+    }
+```
+camelize方法：转换为驼峰风格（特定字符串替换使用正则）
+```javascript
+    function camelize(target){
+        if(target.indexOf('-') < 0 && target.indexOf('_') < 0){
+            return target;
+        }
+        return target.replace(/[-_][^-_]/g, function(match){
+            return match[0].toUpperCase();
+        });
+    }
+```
+避免xss攻击的escapeHTML方法
+```javascript
+    function excapeHTML(target){
+        return target.replace(/&/g, '&amp;').replace...
+    }
+```
+pad方法：与trim方法相反，pad方法可以在字符串的某一端添加字符串，比如在日历之前补0
+```javascript
+    function pad(target, n){
+        var zero = new Array(n).join('0');
+        var str = zero + target;
+        //从右边开始截取
+        var result = substr(-n);
+        return result;
+    }
+```
+
+数组的扩展与修复
+-
+在IE6-8对ES5的数组方法主要通过修改数组原型来修复：
+```javascript
+    Array.prototype.indexOf = function(item, index){
+        var n = this.length, i = --index;
+        if(i < 0){
+            i += n;
+        }
+        for(; i < n; i++){
+            if(this[i] === item) return i;
+        }
+        return -1;
+    }
+```
+实现indexOf可以获取数组相应元素之后，就可以实现其他很多方法.
+flatten方法，用来拍平数组，返回一维数组
+```javascript
+    function flatten(target){
+        var result = []
+          len = target.length;
+        for(var i = 0; i < len; i++){
+            if($.isArray(arr[i])) {
+                result.concat(flatten(arr[i]));
+            } else {
+                result.push(arr[i]);
+            }
+        } 
+        return result;
+    }
+```
+pluck方法: 取得数组上每个元素的指定属性，组成数组返回
+```javascript
+    function pluck(target, name){
+        var result = [], 
+           prop;
+        target.forEach(function(item){
+           prop = item[name];
+           if(prop != null) result.push(prop);
+        });
+        return result;
+    }
+```
+groupBy方法：根据指定条件进行分组
+```javascript
+    function groupBy(target, val){
+        var result = {};
+        var iterator = $.isFunction(val) ? val : function(obj){
+            return obj[val];
+        }
+        target.forEach(function(value, index){
+            var key = iterator(value);
+            (result[key] || (result[key] = [])).push(value);
+        });
+        return result;
     }
 ```
