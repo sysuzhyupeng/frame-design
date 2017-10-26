@@ -226,3 +226,18 @@ groupBy方法：根据指定条件进行分组
         return result;
     }
 ```
+
+函数的扩展与修复
+-
+bind方法：劫持作用域，并预先添加更多参数
+```javascript
+    Function.prototype.bind = function(context){
+       if(arguments.length < 2 && context == void 0) return this;
+       var _method = this, args = [].slice.call(arguments, 1);
+       return function(){
+           _method.apply(context, args.concat.apply(args, arguments));
+       }
+    }
+```
+使用bind，我们可以修改attacheEvent回调
+
