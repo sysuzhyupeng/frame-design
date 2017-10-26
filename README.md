@@ -239,5 +239,53 @@ bind方法：劫持作用域，并预先添加更多参数
        }
     }
 ```
-使用bind，我们可以修改attacheEvent回调
+使用bind，我们可以修改attacheEvent回调中的this问题，它总是指向window对象。
+```javascript
+  var addEvent = document.addEventListener ? 
+       function(el, type, fn, capture){
+           el.addEventListener(type, fn, capture)
+       } :
+       function(el, type, fn){
+           el.attacheEvent('on'+ type, fn.bind(el, event))
+       } :
+```
+
+类工厂
+-
+当我们想要一些私有属性，可以通过这样的方式
+```javascript
+    function A(){
+        var count = 0;
+        this.method = function(){
+            return count;
+        }
+    }
+```
+实现继承最简单的方式就是拷贝继承，比如这个浅拷贝：
+```javascript
+  function extend(destination, source){
+      for(var property in source)
+      destination[property] = source[property];
+      return destination;
+  }
+```
+浅拷贝的缺点是无法通过`instanceof`验证。
+第二种是原型继承。但是原型继承没有继承父类的类成员与特权成员。
+如果需要继承类成员，可以通过这样：
+```javascript
+  function inherit(init, Parent, proto){
+      function Son(){
+          //先继承父类的特权成员
+          Parent.apply(this, arguments);
+          //再执行自己的构造器
+          init.apply(this, arguments);  
+      }
+      Son.prototype = Object.create(Parent.prototype, {});
+      extend(Son, Parent);
+      return Son;
+  }
+```
+
+es5属性描述符对OO库的冲击
+-
 
