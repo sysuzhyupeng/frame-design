@@ -288,4 +288,32 @@ bind方法：劫持作用域，并预先添加更多参数
 
 es5属性描述符对OO库的冲击
 -
+Object提供了这些方法：
 
+ * Object.keys
+ * Object.getOwnPropertyNames
+ * Object.getPrototypeOf
+ * Object.defineProperty
+ * ...
+ 
+其中除了`Object.keys`之外，旧版本IE都无法模仿这些API。`Object.keys`用来遍历对象上非原型的属性。 
+
+数据缓存系统
+-
+数据缓存系统主要有以下方式：
+
+ * 属性标记法
+ * 数组索引法
+ * valueOf重写法
+ * WeakMap关联法
+ 
+jQuery1.2使用data和removeData方法，放在$.cache仓库上，为每个元素节点、文档对象分配一个UUID，UUID使用时间戳进行区分，挂载在windowData对象上。
+```javascript
+  var expando = 'jQuery' + (new Date().getTime()), uuid = 0, windowData = {};
+  jQuery.extend({
+      cache：{},
+      data: function(elem, name, data){
+          elem = elem == window ? windowData : elem;
+      }
+  });
+```
