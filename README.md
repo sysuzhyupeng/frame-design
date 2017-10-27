@@ -314,6 +314,11 @@ jQuery1.2使用data和removeData方法，放在$.cache仓库上，为每个元�
       cache：{},
       data: function(elem, name, data){
           elem = elem == window ? windowData : elem;
-      }
+          var id =  elem[expando];
+          if(!id) id = elem[expando] = ++uuid;
+          if(name && !jQuery.cache[id]) jQuery.cache[id] = {};
+          if(data != undefined) jQuery.cache[id][name] = data;
+          return name ? jQuery.cache[id][name] : id;
+      }
   });
 ```
